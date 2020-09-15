@@ -54,6 +54,7 @@ This function should only modify configuration layer settings."
           org-agenda-files '("c:/source/org")
           org-want-todo-bindings t
           org-hide-emphasis-markers t
+          org-todo-keywords '((sequence "TODO" "WAIT" "FOLLOWUP" "|" "DONE" "CANCELLED"))
           org-ellipsis "▼")
      (python :variables python-backend 'lsp)
      (shell :variables

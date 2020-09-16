@@ -50,11 +50,13 @@ This function should only modify configuration layer settings."
      markdown
      multiple-cursors
      (org :variables 
+          org-insert-heading-respect-content t
           org-startup-indented t
+          org-directory '("c:/source/org")
           org-agenda-files '("c:/source/org")
           org-want-todo-bindings t
           org-hide-emphasis-markers t
-          org-todo-keywords '((sequence "TODO" "WAIT" "FOLL" "|" "DONE" "CANC"))
+          org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
           org-ellipsis "▼")
      (python :variables python-backend 'lsp)
      (shell :variables
@@ -511,6 +513,22 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  (setq org-default-notes-file "c:/source/org/unfiled.org")
+  ;; Define the custum capture templates
+  (setq org-capture-templates
+        '(("t" "todo" entry (file org-default-notes-file)
+	         "* TODO %?\n%u\n%a\n" :clock-in t :clock-resume t)
+	        ("m" "Meeting" entry (file org-default-notes-file)
+	         "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
+	        ("d" "Diary" entry (file+datetree "~/org/diary.org")
+	         "* %?\n%U\n" :clock-in t :clock-resume t)
+	        ("i" "Idea" entry (file org-default-notes-file)
+	         "* %? :IDEA: \n%t" :clock-in t :clock-resume t)
+	        ("n" "Next Task" entry (file+headline org-default-notes-file "Tasks")
+	         "** NEXT %? \nDEADLINE: %t") ))
+  ;; When hitting alt-return on a header, please create a new one without
+  ;; messing up the one I'm standing on.
+  (setq org-insert-heading-respect-content t)
   )
 
 ;; Do not write anything past this comment. This is where Emacs will

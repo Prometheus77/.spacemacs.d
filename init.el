@@ -50,7 +50,9 @@ This function should only modify configuration layer settings."
      markdown
      multiple-cursors
      (org :variables 
+          org-insert-heading-respect-content t
           org-startup-indented t
+          org-directory '("c:/source/org")
           org-agenda-files '("c:/source/org")
           org-want-todo-bindings t
           org-hide-emphasis-markers t
@@ -511,6 +513,7 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  (setq org-default-notes-file "c:/source/org/unfiled.org")
   ;; Define the custum capture templates
   (setq org-capture-templates
         '(("t" "todo" entry (file org-default-notes-file)

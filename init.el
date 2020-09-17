@@ -529,7 +529,10 @@ before packages are loaded."
   ;; When hitting alt-return on a header, please create a new one without
   ;; messing up the one I'm standing on.
   (setq org-insert-heading-respect-content t)
+  (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                   (org-agenda-files :maxlevel . 9))))
   )
+
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.

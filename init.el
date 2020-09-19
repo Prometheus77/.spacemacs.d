@@ -40,7 +40,8 @@ This function should only modify configuration layer settings."
      ;; ----------------------------------------------------------------
      (auto-completion :variables
                       auto-completion-return-key-behavior nil
-                      auto-completion-tab-key-behavior 'complete)
+                      auto-completion-tab-key-behavior 'complete
+                      auto-completion-enable-snippets-in-popup t)
      better-defaults
      emacs-lisp
      (ess :variables ess-r-backend 'lsp)

@@ -59,6 +59,7 @@ This function should only modify configuration layer settings."
           org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
           org-ellipsis "▼")
      (python :variables python-backend 'lsp)
+     (ranger :variables ranger-show-preview t)
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)

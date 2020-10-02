@@ -237,7 +237,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; Default font or prioritized list of fonts.
    dotspacemacs-default-font '("Source Code Pro"
-                               :size 8.0
+                               :size 9.0
                                :weight normal
                                :width normal
                                :powerline-scale 1.4)
@@ -521,22 +521,24 @@ before packages are loaded."
   (setq org-default-notes-file "~/org/unfiled.org")
   ;; Define the custum capture templates
   (setq org-capture-templates
-        '(("t" "todo" entry (file org-default-notes-file)
-	         "* TODO %?\n%u\n%a\n" :clock-in t :clock-resume t)
+        '(("t" "Todo" entry (file+headline "~/org/work.org" "Tasks")
+	         "* TODO  %?\nSCHEDULED: %t\nDEADLINE: ")
+          ("n" "Next action" entry (file+headline "~/org/work.org" "Tasks")
+	         "* NEXT  %?\nSCHEDULED: %t\nDEADLINE: ")
+          ("f" "Follow-up" entry (file+headline "~/org/work.org" "Tasks")
+	         "* FOLL Follow up on  %?\nSCHEDULED: %t\nDEADLINE: ")
 	        ("m" "Meeting" entry (file org-default-notes-file)
-	         "* MEETING with %? :MEETING:\n%t" :clock-in t :clock-resume t)
+	         "*  %? :MEETING:\n%t" :clock-in t :clock-resume t)
 	        ("d" "Diary" entry (file+datetree "~/org/diary.org")
-	         "* %?\n%U\n" :clock-in t :clock-resume t)
+	         "*  %?\n%U\n")
 	        ("i" "Idea" entry (file org-default-notes-file)
-	         "* %? :IDEA: \n%t" :clock-in t :clock-resume t)
-	        ("n" "Next Task" entry (file+headline org-default-notes-file "Tasks")
-	         "** NEXT %? \nDEADLINE: %t") ))
+	         "*  %? :IDEA: \n%t")))
   ;; When hitting alt-return on a header, please create a new one without
   ;; messing up the one I'm standing on.
   (setq org-insert-heading-respect-content t)
   (setq org-refile-targets (quote ((nil :maxlevel . 9)
                                    (org-agenda-files :maxlevel . 9)))))
-
+  (setq org-agenda-sorting-strategy '(time-up category-keep deadline-up category-keep scheduled-down category-keep todo-state-up))
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
 (defun dotspacemacs/emacs-custom-settings ()

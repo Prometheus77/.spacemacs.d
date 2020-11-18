@@ -526,17 +526,23 @@ before packages are loaded."
   ;; Define the custum capture templates
   (setq org-capture-templates
         '(("t" "Todo" entry (file+headline "~/org/work.org" "Tasks")
-	         "* TODO  %?\nSCHEDULED: %t\nDEADLINE: ")
+	         "* TODO %?\nSCHEDULED: %t " :prepend t)
           ("n" "Next action" entry (file+headline "~/org/work.org" "Tasks")
-	         "* NEXT  %?\nSCHEDULED: %t\nDEADLINE: ")
+	         "* NEXT %?\nSCHEDULED: %t " :prepend t)
           ("f" "Follow-up" entry (file+headline "~/org/work.org" "Tasks")
-	         "* FOLL Follow up on  %?\nSCHEDULED: %t\nDEADLINE: ")
-	        ("m" "Meeting" entry (file org-default-notes-file)
-	         "*  %? :MEETING:\n%t" :clock-in t :clock-resume t)
+	         "* FOLL %?\nSCHEDULED: %t " :prepend t)
+	        ("m" "Meeting" entry (file+headline "~/org/meetings.org" "UNFILED")
+	         "* %? %u\n%t\n** Notes\n** Action items" :clock-in t :clock-resume t)
+          ("M" "Meeting (schedule)" entry (file+headline "~/org/meetings.org" "UNFILED")
+           "* %? \nSCHEDULED: %^T\n** Agenda\n** Notes\n** Action items")
+          ("e" "Email or message" entry (file+headline "~/org/ref.org" "Emails and messages")
+           "* %?\n")
+          ("p" "Paste clipboard" entry (file+headline "~/org/ref.org" "UNFILED")
+           "* %?\n\n%x")
 	        ("d" "Diary" entry (file+datetree "~/org/diary.org")
-	         "*  %?\n%U\n")
+	         "* %?\n%U\n")
 	        ("i" "Idea" entry (file org-default-notes-file)
-	         "*  %? :IDEA: \n%t")))
+	         "* %? \n%t")))
   ;; When hitting alt-return on a header, please create a new one without
   ;; messing up the one I'm standing on.
   (setq org-insert-heading-respect-content t)
@@ -567,5 +573,5 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:background nil)))))
 )

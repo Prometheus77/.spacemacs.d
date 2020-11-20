@@ -64,7 +64,10 @@ This function should only modify configuration layer settings."
           org-hide-emphasis-markers t
           org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
           org-startup-truncated nil
-          org-ellipsis "▼")
+          org-ellipsis "▼"
+          org-babel-load-languages (quote ((emacs-lisp . t) (R . t)))
+          org-confirm-babel-evaluate nil
+          org-file-apps org-file-apps-windowsnt)
      (python :variables python-backend 'lsp)
      (ranger :variables ranger-show-preview t)
      (shell :variables
@@ -396,7 +399,7 @@ It should only modify the values of Spacemacs settings."
    ;;   :size-limit-kb 1000)
    ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
-   dotspacemacs-line-numbers 'relative
+   dotspacemacs-line-numbers 'visual
 
    ;; Code folding method. Possible values are `evil' and `origami'.
    ;; (default 'evil)
@@ -533,8 +536,8 @@ before packages are loaded."
 	         "* FOLL %?\nSCHEDULED: %t " :prepend t)
 	        ("m" "Meeting" entry (file+headline "~/org/meetings.org" "UNFILED")
 	         "* %? %u\n%t\n** Notes\n** Action items" :clock-in t :clock-resume t)
-          ("M" "Meeting (schedule)" entry (file+headline "~/org/meetings.org" "UNFILED")
-           "* %? \nSCHEDULED: %^T\n** Agenda\n** Notes\n** Action items")
+          ("M" "Meeting (plan)" entry (file+headline "~/org/meetings.org" "UNFILED")
+           "* %? \nSCHEDULED: %^T\nOBJECTIVE: \n** Agenda\n** Notes\n** Action items")
           ("e" "Email or message" entry (file+headline "~/org/ref.org" "Emails and messages")
            "* %?\n")
           ("p" "Paste clipboard" entry (file+headline "~/org/ref.org" "UNFILED")

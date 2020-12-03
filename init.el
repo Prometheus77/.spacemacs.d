@@ -67,7 +67,7 @@ This function should only modify configuration layer settings."
           org-ellipsis "▼"
           org-babel-load-languages (quote ((emacs-lisp . t) (R . t)))
           org-confirm-babel-evaluate nil
-          org-file-apps org-file-apps-windowsnt)
+          org-file-apps (quote (org-file-apps-windowsnt)))
      (python :variables python-backend 'lsp)
      (ranger :variables ranger-show-preview t)
      (shell :variables
@@ -494,7 +494,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If nil the home buffer shows the full path of agenda items
    ;; and todos. If non nil only the file name is shown.
-   dotspacemacs-home-shorten-agenda-source nil))
+   dotspacemacs-home-shorten-agenda-source t))
 
 (defun dotspacemacs/user-env ()
   "Environment variables setup.
@@ -552,6 +552,7 @@ before packages are loaded."
   (setq org-refile-targets (quote ((nil :maxlevel . 9)
                                    (org-agenda-files :maxlevel . 9)))))
   (setq org-agenda-sorting-strategy '(time-up category-keep deadline-up category-keep scheduled-down category-keep todo-state-up))
+  (spacemacs/set-leader-keys "or" 'recover-this-file)
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
 (defun dotspacemacs/emacs-custom-settings ()

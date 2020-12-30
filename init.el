@@ -32,12 +32,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(csv
-     ;; ----------------------------------------------------------------
-     ;; Example of useful layers you may want to use right away.
-     ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
-     ;; `M-m f e R' (Emacs style) to install them.
-     ;; ----------------------------------------------------------------
+   '(
      ;; 1 Chat
      ;; 2 Checkers
      syntax-checking
@@ -49,7 +44,7 @@ This function should only modify configuration layer settings."
      helm
      ;; 4 Distributions
      ;; 5 Emacs
-     (org :variables 
+     (org :variables
           org-agenda-todo-ignore-scheduled t
           org-agenda-todo-ignore-deadlines t
           org-insert-heading-respect-content t
@@ -72,6 +67,7 @@ This function should only modify configuration layer settings."
      ;; 9 International support
      ;; 10 Programming and markup languages
      csharp
+     csv
      emacs-lisp
      (ess :variables
           ess-r-backend 'lsp

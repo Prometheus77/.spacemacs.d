@@ -32,11 +32,7 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(windows-scripts
-     javascript
-     html
-     sql
-     ;; ----------------------------------------------------------------
+   '(;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
@@ -48,23 +44,26 @@ This function should only modify configuration layer settings."
      better-defaults
      (clojure :variables
               clojure-backend 'cider)
+     csharp
      emacs-lisp
      (ess :variables
           ess-ask-for-ess-directory nil
           ess-r-backend 'lsp
           ess-eval-visibly 'nowait)
+     fsharp
      git
      helm
+     html
+     javascript
      lsp
-     ;; markdown
+     lua
+     markdown
      ;; multiple-cursors
      (org :variables
-          org-agenda-todo-ignore-scheduled t
-          org-agenda-todo-ignore-deadlines t
           org-insert-heading-respect-content t
           org-startup-indented t
-          org-directory '("~/org")
-          org-agenda-files '("~/org")
+          org-directory '("~/org/work/resources/")
+          org-agenda-files '("~/org/work/resources/")
           org-want-todo-bindings t
           org-hide-emphasis-markers t
           org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
@@ -96,9 +95,11 @@ This function should only modify configuration layer settings."
      (spacemacs-layouts :variables
                         spacemacs-layouts-restrict-spc-tab t)
      ;; spell-checking
+     sql
      syntax-checking
      version-control
      treemacs
+     windows-scripts
      (xclipboard :variables xclipboard-enable-cliphist t)
      )
 
@@ -469,7 +470,7 @@ It should only modify the values of Spacemacs settings."
    ;;   :size-limit-kb 1000)
    ;; When used in a plist, `visual' takes precedence over `relative'.
    ;; (default nil)
-   dotspacemacs-line-numbers 'visual
+   dotspacemacs-line-numbers '(:visual t)
 
    ;; Code folding method. Possible values are `evil', `origami' and `vimish'.
    ;; (default 'evil)
@@ -617,25 +618,28 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  ;; Force visual line numbers and visual line navigation
+  (spacemacs/toggle-visual-line-numbers-on)
+  (spacemacs/toggle-visual-line-navigation-globally-on)
   ;; Capture notes in work.org
-  (setq org-default-notes-file "~/org/work.org")
+  (setq org-default-notes-file "~/org/work/resources/prog.org")
   ;; Define the custom capture templates
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/org/work.org" "Tasks")
+        '(("t" "Todo" entry (file+headline "~/org/work/resources/prog.org" "Tasks")
 	         "* TODO %?\nSCHEDULED: %t " :prepend t)
-          ("n" "Next action" entry (file+headline "~/org/work.org" "Tasks")
+          ("n" "Next action" entry (file+headline "~/org/work/resources/prog.org" "Tasks")
 	         "* NEXT %?\nSCHEDULED: %t " :prepend t)
-          ("f" "Follow-up" entry (file+headline "~/org/work.org" "Tasks")
+          ("f" "Follow-up" entry (file+headline "~/org/work/resources/prog.org" "Tasks")
 	         "* FOLL %?\nSCHEDULED: %t " :prepend t)
-	        ("m" "Meeting" entry (file+headline "~/org/work.org" "UNFILED")
+	        ("m" "Meeting" entry (file+headline "~/org/work/resources/prog.org" "Meetings")
 	         "* %? %u\n%t\n** Notes\n** Action items" :clock-in t :clock-resume t)
-          ("M" "Meeting (plan)" entry (file+headline "~/org/work.org" "UNFILED")
+          ("M" "Meeting (plan)" entry (file+headline "~/org/work/resources/prog.org" "Meetings")
            "* %? \nSCHEDULED: %^T\nOBJECTIVE: \n** Agenda\n** Notes\n** Action items")
-          ("e" "Email or message" entry (file+headline "~/org/work.org" "Emails and messages")
-           "* %?\nSCHEDULED: %t\n [[C:/Users/aaron.cooley/OneDrive - Progressive Leasing/Documents/5_Team/NAME.msg]]" :prepend t)
-          ("p" "Paste clipboard" entry (file+headline "~/org/work.org" "UNFILED")
+          ("e" "Email or message" entry (file+headline "~/org/work/resources/prog.org" "Messages")
+           "* %?\nSCHEDULED: %t\n [[C:/Users/aaron.cooley/OneDrive - Progressive Leasing/Documents/5-Whirlwind/3-Messages/NAME.msg]]" :prepend t)
+          ("p" "Paste clipboard" entry (file+headline "~/org/work/resources/prog.org" "UNFILED")
            "* %?\n\n%x")
-	        ("i" "Idea" entry (file+headline "~/org/work.org" "UNFILED IDEAS")
+	        ("i" "Idea" entry (file+headline "~/org/work/resources/prog.org" "Ideas")
 	         "* %? \n%t")))
   ;; When hitting alt-return on a header, please create a new one without
   ;; messing up the one I'm standing on.
@@ -664,6 +668,8 @@ before packages are loaded."
   (setenv "PATH" (concat "C:\\MyPrograms\\Python;" (getenv "PATH")))
   ;; Don't autopopulate numbers - DOESN'T WORK
   (setq company-dabbrev-char-regexp "[A-z:-]")
+  ;; Show images inline - DOESN'T WORK
+  (setq org-startup-with-inline-images t)
 )
 
 
@@ -679,8 +685,10 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(org-agenda-files
+   '("c:/Users/aaron.cooley/org/work/resources/prog.org" "c:/Users/aaron.cooley/org/work/resources/work2.org"))
  '(package-selected-packages
-   '(bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
+   '(gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

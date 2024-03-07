@@ -62,8 +62,8 @@ This function should only modify configuration layer settings."
      (org :variables
           org-insert-heading-respect-content t
           org-startup-indented t
-          org-directory '("~/org/work/resources/")
-          org-agenda-files '("~/org/work/resources/")
+          org-directory '("~/org")
+          org-agenda-files '("~/org/work/prog.org")
           org-want-todo-bindings t
           org-hide-emphasis-markers t
           org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
@@ -622,25 +622,31 @@ before packages are loaded."
   (spacemacs/toggle-visual-line-numbers-on)
   (spacemacs/toggle-visual-line-navigation-globally-on)
   ;; Capture notes in work.org
-  (setq org-default-notes-file "~/org/work/resources/prog.org")
+  (setq org-default-notes-file "~/org/work/prog.org")
   ;; Define the custom capture templates
   (setq org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/org/work/resources/prog.org" "Tasks")
+        '(("t" "Todo" entry (file+headline "~/org/work/prog.org" "Tasks")
 	         "* TODO %?\nSCHEDULED: %t " :prepend t)
-          ("n" "Next action" entry (file+headline "~/org/work/resources/prog.org" "Tasks")
+          ("n" "Next action" entry (file+headline "~/org/work/prog.org" "Tasks")
 	         "* NEXT %?\nSCHEDULED: %t " :prepend t)
-          ("f" "Follow-up" entry (file+headline "~/org/work/resources/prog.org" "Tasks")
+          ("f" "Follow-up" entry (file+headline "~/org/work/prog.org" "Tasks")
 	         "* FOLL %?\nSCHEDULED: %t " :prepend t)
-	        ("m" "Meeting" entry (file+headline "~/org/work/resources/prog.org" "Meetings")
+	        ("m" "Meeting" entry (file+headline "~/org/work/prog.org" "Meetings")
 	         "* %? %u\n%t\n** Notes\n** Action items" :clock-in t :clock-resume t)
-          ("M" "Meeting (plan)" entry (file+headline "~/org/work/resources/prog.org" "Meetings")
+          ("M" "Meeting (plan)" entry (file+headline "~/org/work/prog.org" "Meetings")
            "* %? \nSCHEDULED: %^T\nOBJECTIVE: \n** Agenda\n** Notes\n** Action items")
-          ("e" "Email or message" entry (file+headline "~/org/work/resources/prog.org" "Messages")
+          ("e" "Email or message" entry (file+headline "~/org/work/prog.org" "Messages")
            "* %?\nSCHEDULED: %t\n [[C:/Users/aaron.cooley/OneDrive - Progressive Leasing/Documents/5-Whirlwind/3-Messages/NAME.msg]]" :prepend t)
-          ("p" "Paste clipboard" entry (file+headline "~/org/work/resources/prog.org" "UNFILED")
+          ("p" "Paste clipboard" entry (file+headline "~/org/work/prog.org" "UNFILED")
            "* %?\n\n%x")
-	        ("i" "Idea" entry (file+headline "~/org/work/resources/prog.org" "Ideas")
+	        ("i" "Idea" entry (file+headline "~/org/work/prog.org" "Ideas")
 	         "* %? \n%t")))
+  (add-to-list 'org-agenda-custom-commands
+               '("d" "Deadline in next month"
+                 tags "+DEADLINE<=\"<+2m>\""
+                 ((org-agenda-overriding-columns-format
+                   "%25ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %TAGS")
+                  (org-agenda-view-columns-initially t))))
   ;; When hitting alt-return on a header, please create a new one without
   ;; messing up the one I'm standing on.
   (setq org-insert-heading-respect-content t)
@@ -685,8 +691,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(org-agenda-files
-   '("c:/Users/aaron.cooley/org/work/resources/prog.org" "c:/Users/aaron.cooley/org/work/resources/work2.org"))
+ '(org-agenda-files nil)
  '(package-selected-packages
    '(gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
 (custom-set-faces

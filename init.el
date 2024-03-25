@@ -64,6 +64,8 @@ This function should only modify configuration layer settings."
           org-startup-indented t
           org-directory '("~/org")
           org-agenda-files '("~/org/work/prog.org")
+          org-agenda-skip-deadline-if-done t
+          org-agenda-skip-scheduled-if-done t
           org-want-todo-bindings t
           org-hide-emphasis-markers t
           org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
@@ -642,10 +644,23 @@ before packages are loaded."
 	        ("i" "Idea" entry (file+headline "~/org/work/prog.org" "Ideas")
 	         "* %? \n%t")))
   (add-to-list 'org-agenda-custom-commands
+               '("g" "GTD View"
+                 tags "+SCHEDULED<=\"<+0d>\""
+                 ((org-agenda-overriding-columns-format
+                   "%40ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %TAGS")
+                  (org-agenda-skip-function
+                   '(org-agenda-skip-entry-if 'nottodo 'todo))
+                  (org-agenda-sorting-strategy '(priority-down scheduled-down))
+                  (org-agenda-view-columns-initially t))))
+  (add-to-list 'org-agenda-custom-commands
                '("d" "Deadline in next month"
                  tags "+DEADLINE<=\"<+2m>\""
                  ((org-agenda-overriding-columns-format
-                   "%25ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %TAGS")
+                   "%40ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %TAGS")
+                  (org-agenda-skip-function
+                   '(or (org-agenda-skip-entry-if 'todo '("DONE" "CANC"))
+                        (org-agenda-skip-entry-if 'notdeadline)))
+                  (org-agenda-sorting-strategy '(deadline-up))
                   (org-agenda-view-columns-initially t))))
   ;; When hitting alt-return on a header, please create a new one without
   ;; messing up the one I'm standing on.

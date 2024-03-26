@@ -59,33 +59,7 @@ This function should only modify configuration layer settings."
      lua
      markdown
      ;; multiple-cursors
-     (org :variables
-          org-insert-heading-respect-content t
-          org-startup-indented t
-          org-directory '("~/org")
-          org-agenda-files '("~/org/work/prog.org")
-          org-agenda-skip-deadline-if-done t
-          org-agenda-skip-scheduled-if-done t
-          org-want-todo-bindings t
-          org-hide-emphasis-markers t
-          org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
-          org-startup-truncated nil
-          org-ellipsis "▼"
-          org-babel-load-languages (quote (
-                                           (emacs-lisp . t)
-                                           (R . t)
-                                           (python . t)
-                                           (clojure . t)))
-          org-babel-clojure-nrepl-timeout nil
-          org-confirm-babel-evaluate nil
-          org-file-apps (quote ((auto-mode . emacs)
-                                ("\\.png\\'" . "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge\" %s")
-                                ("\\.jpg\\'" . "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge\" %s")
-                                ("\\.gif\\'" . "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge\" %s")
-                                ("\\.pdf\\'" . "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge\" %s")
-                                ("\\.html\\'" . "\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge\" %s")
-                                ("\\.xlsx\\'" . "\"C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL\" %s")
-                                ("\\.docx\\'" . "\"C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD\" %s"))))
+     org
      (python :variables
              python-shell-interpreter "C:\\MyPrograms\\Anaconda3\\python.exe"
              org-babel-python-command "C:\\MyPrograms\\Anaconda3\\python.exe"
@@ -623,10 +597,32 @@ before packages are loaded."
   ;; Force visual line numbers and visual line navigation
   (spacemacs/toggle-visual-line-numbers-on)
   (spacemacs/toggle-visual-line-navigation-globally-on)
-  ;; Capture notes in work.org
-  (setq org-default-notes-file "~/org/work/prog.org")
-  ;; Define the custom capture templates
-  (setq org-capture-templates
+  (with-eval-after-load 'org
+    ;; Moved org :variables here
+    (setq org-insert-heading-respect-content t
+    org-startup-indented t
+    org-directory "~/org"
+    org-agenda-files '("~/org/work/prog.org")
+    org-agenda-skip-deadline-if-done t
+    org-agenda-skip-scheduled-if-done t
+    org-want-todo-bindings t
+    org-hide-emphasis-markers t
+    org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
+    org-startup-truncated nil
+    org-ellipsis "▼"
+    org-babel-load-languages '((emacs-lisp . t) (R . t) (python . t) (clojure . t))
+    org-babel-clojure-nrepl-timeout nil
+    org-confirm-babel-evaluate nil)
+    org-file-apps '((auto-mode . emacs)
+                                ("\\.png\\'" . "msedge %s")
+                                ("\\.jpg\\'" . "msedge %s")
+                                ("\\.gif\\'" . "msedge %s")
+                                ("\\.pdf\\'" . "msedge %s")
+                                ("\\.html\\'" . "msedge %s")
+                                ("\\.xlsx\\'" . "EXCEL %s")
+                                ("\\.docx\\'" . "WINWORD %s"))
+  org-default-notes-file "~/org/work/prog.org"
+  org-capture-templates
         '(("t" "Todo" entry (file+headline "~/org/work/prog.org" "Tasks")
 	         "* TODO %?\nSCHEDULED: %t " :prepend t)
           ("n" "Next action" entry (file+headline "~/org/work/prog.org" "Tasks")
@@ -643,6 +639,7 @@ before packages are loaded."
            "* %?\n\n%x")
 	        ("i" "Idea" entry (file+headline "~/org/work/prog.org" "Ideas")
 	         "* %? \n%t")))
+  (setq org-agenda-custom-commands '())
   (add-to-list 'org-agenda-custom-commands
                '("g" "GTD View"
                  tags "+SCHEDULED<=\"<+0d>\""
@@ -668,8 +665,6 @@ before packages are loaded."
   ;; Let me refile to any level header
   (setq org-refile-targets (quote ((nil :maxlevel . 9)
                                    (org-agenda-files :maxlevel . 9))))
-  ;; Show org-agenda in the "Total Workday Productivity" order
-  ;; (setq org-agenda-sorting-strategy '(time-up deadline-up scheduled-down todo-state-up))
   ;; create a short-cut to recover files
   (spacemacs/set-leader-keys "or" 'recover-this-file)
   ;; CIDER make REPL work with Enter

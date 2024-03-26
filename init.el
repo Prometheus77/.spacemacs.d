@@ -600,46 +600,49 @@ before packages are loaded."
   (with-eval-after-load 'org
     ;; Moved org :variables here
     (setq org-insert-heading-respect-content t
-    org-startup-indented t
-    org-directory "~/org"
-    org-agenda-files '("~/org/work/prog.org")
-    org-agenda-skip-deadline-if-done t
-    org-agenda-skip-scheduled-if-done t
-    org-want-todo-bindings t
-    org-hide-emphasis-markers t
-    org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
-    org-startup-truncated nil
-    org-ellipsis "▼"
-    org-babel-load-languages '((emacs-lisp . t) (R . t) (python . t) (clojure . t))
-    org-babel-clojure-nrepl-timeout nil
-    org-confirm-babel-evaluate nil)
-    org-file-apps '((auto-mode . emacs)
-                                ("\\.png\\'" . "msedge %s")
-                                ("\\.jpg\\'" . "msedge %s")
-                                ("\\.gif\\'" . "msedge %s")
-                                ("\\.pdf\\'" . "msedge %s")
-                                ("\\.html\\'" . "msedge %s")
-                                ("\\.xlsx\\'" . "EXCEL %s")
-                                ("\\.docx\\'" . "WINWORD %s"))
-  org-default-notes-file "~/org/work/prog.org"
-  org-capture-templates
-        '(("t" "Todo" entry (file+headline "~/org/work/prog.org" "Tasks")
-	         "* TODO %?\nSCHEDULED: %t " :prepend t)
-          ("n" "Next action" entry (file+headline "~/org/work/prog.org" "Tasks")
-	         "* NEXT %?\nSCHEDULED: %t " :prepend t)
-          ("f" "Follow-up" entry (file+headline "~/org/work/prog.org" "Tasks")
-	         "* FOLL %?\nSCHEDULED: %t " :prepend t)
-	        ("m" "Meeting" entry (file+headline "~/org/work/prog.org" "Meetings")
-	         "* %? %u\n%t\n** Notes\n** Action items" :clock-in t :clock-resume t)
-          ("M" "Meeting (plan)" entry (file+headline "~/org/work/prog.org" "Meetings")
-           "* %? \nSCHEDULED: %^T\nOBJECTIVE: \n** Agenda\n** Notes\n** Action items")
-          ("e" "Email or message" entry (file+headline "~/org/work/prog.org" "Messages")
-           "* %?\nSCHEDULED: %t\n [[C:/Users/aaron.cooley/OneDrive - Progressive Leasing/Documents/5-Whirlwind/3-Messages/NAME.msg]]" :prepend t)
-          ("p" "Paste clipboard" entry (file+headline "~/org/work/prog.org" "UNFILED")
-           "* %?\n\n%x")
-	        ("i" "Idea" entry (file+headline "~/org/work/prog.org" "Ideas")
-	         "* %? \n%t")))
-  (setq org-agenda-custom-commands '())
+          org-startup-indented t
+          org-directory "~/org"
+          org-agenda-files '("~/org/work/prog.org")
+          org-agenda-skip-deadline-if-done t
+          org-agenda-skip-scheduled-if-done t
+          org-want-todo-bindings t
+          org-hide-emphasis-markers t
+          org-todo-keywords '((sequence "TODO" "NEXT" "FOLL" "|" "DONE" "CANC"))
+          org-startup-truncated nil
+          org-ellipsis "▼"
+          org-babel-load-languages '((emacs-lisp . t) (R . t) (python . t) (clojure . t))
+          org-babel-clojure-nrepl-timeout nil
+          org-confirm-babel-evaluate nil
+          org-file-apps '((auto-mode . emacs)
+                          ("\\.png\\'" . "msedge %s")
+                          ("\\.jpg\\'" . "msedge %s")
+                          ("\\.gif\\'" . "msedge %s")
+                          ("\\.pdf\\'" . "msedge %s")
+                          ("\\.html\\'" . "msedge %s")
+                          ("\\.xlsx\\'" . "EXCEL %s")
+                          ("\\.docx\\'" . "WINWORD %s"))
+          org-default-notes-file "~/org/work/prog.org"
+          org-capture-templates
+          '(("t" "Todo" entry (file+headline "~/org/work/prog.org" "Tasks")
+	           "* TODO %?\nSCHEDULED: %t " :prepend t)
+            ("n" "Next action" entry (file+headline "~/org/work/prog.org" "Tasks")
+	           "* NEXT %?\nSCHEDULED: %t " :prepend t)
+            ("f" "Follow-up" entry (file+headline "~/org/work/prog.org" "Tasks")
+	           "* FOLL %?\nSCHEDULED: %t " :prepend t)
+	          ("m" "Meeting" entry (file+headline "~/org/work/prog.org" "Meetings")
+	           "* %? %u\n%t\n** Notes\n** Action items" :clock-in t :clock-resume t)
+            ("M" "Meeting (plan)" entry (file+headline "~/org/work/prog.org" "Meetings")
+             "* %? \nSCHEDULED: %^T\nOBJECTIVE: \n** Agenda\n** Notes\n** Action items")
+            ("e" "Email or message" entry (file+headline "~/org/work/prog.org" "Messages")
+             "* %?\nSCHEDULED: %t\n [[C:/Users/aaron.cooley/OneDrive - Progressive Leasing/Documents/5-Whirlwind/3-Messages/NAME.msg]]" :prepend t)
+            ("p" "Paste clipboard" entry (file+headline "~/org/work/prog.org" "UNFILED")
+             "* %?\n\n%x")
+	          ("i" "Idea" entry (file+headline "~/org/work/prog.org" "Ideas")
+	           "* %? \n%t"))
+          org-insert-heading-respect-content t
+          org-refile-targets (quote ((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9)))
+          org-startup-with-inline-images t
+          org-agenda-custom-commands '())
   (add-to-list 'org-agenda-custom-commands
                '("g" "GTD View"
                  tags "+SCHEDULED<=\"<+0d>\""
@@ -658,13 +661,10 @@ before packages are loaded."
                    '(or (org-agenda-skip-entry-if 'todo '("DONE" "CANC"))
                         (org-agenda-skip-entry-if 'notdeadline)))
                   (org-agenda-sorting-strategy '(deadline-up))
-                  (org-agenda-view-columns-initially t))))
+                  (org-agenda-view-columns-initially t)))))
   ;; When hitting alt-return on a header, please create a new one without
   ;; messing up the one I'm standing on.
-  (setq org-insert-heading-respect-content t)
   ;; Let me refile to any level header
-  (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                   (org-agenda-files :maxlevel . 9))))
   ;; create a short-cut to recover files
   (spacemacs/set-leader-keys "or" 'recover-this-file)
   ;; CIDER make REPL work with Enter
@@ -684,10 +684,7 @@ before packages are loaded."
   (setenv "PATH" (concat "C:\\MyPrograms\\Python;" (getenv "PATH")))
   ;; Don't autopopulate numbers - DOESN'T WORK
   (setq company-dabbrev-char-regexp "[A-z:-]")
-  ;; Show images inline - DOESN'T WORK
-  (setq org-startup-with-inline-images t)
 )
-
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.

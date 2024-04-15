@@ -66,8 +66,8 @@ This function should only modify configuration layer settings."
              python-backend 'anaconda
              flycheck-python-pycompile-executable "C:\\MyPrograms\\Anaconda3\\python.exe")
      (shell :variables
-             shell-default-height 30
-             shell-default-position 'bottom)
+            shell-default-height 30
+            shell-default-position 'bottom)
      (spacemacs-layouts :variables
                         spacemacs-layouts-restrict-spc-tab t)
      ;; spell-checking
@@ -88,7 +88,8 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages
+   '(gptel)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -575,7 +576,7 @@ default it calls `spacemacs/load-spacemacs-env' which loads the environment
 variables declared in `~/.spacemacs.env' or `~/.spacemacs.d/.spacemacs.env'.
 See the header of this file for more information."
   (spacemacs/load-spacemacs-env)
-)
+  )
 
 (defun dotspacemacs/user-init ()
   "Initialization for user code:
@@ -583,7 +584,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-)
+  )
 
 
 (defun dotspacemacs/user-load ()
@@ -591,7 +592,7 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
 This function is called only while dumping Spacemacs configuration. You can
 `require' or `load' the libraries of your choice that will be included in the
 dump."
-)
+  )
 
 
 (defun dotspacemacs/user-config ()
@@ -600,6 +601,7 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  (require 'gptel)
   ;; Force visual line numbers and visual line navigation
   (spacemacs/toggle-visual-line-numbers-on)
   (spacemacs/toggle-visual-line-navigation-globally-on)
@@ -649,40 +651,39 @@ before packages are loaded."
           org-refile-targets (quote ((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9)))
           org-startup-with-inline-images t
           org-agenda-custom-commands '())
-  (add-to-list 'org-agenda-custom-commands
-               '("g" "GTD View"
-                 tags "+SCHEDULED<=\"<+0d>\""
-                 ((org-agenda-overriding-columns-format
-                   "%40ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %TAGS")
-                  (org-agenda-skip-function
-                   '(org-agenda-skip-entry-if 'nottodo 'todo))
-                  (org-agenda-sorting-strategy '(priority-down scheduled-down))
-                  (org-agenda-view-columns-initially t))))
-  (add-to-list 'org-agenda-custom-commands
-               '("d" "Deadline in next month"
-                 tags "+DEADLINE<=\"<+2m>\""
-                 ((org-agenda-overriding-columns-format
-                   "%40ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %TAGS")
-                  (org-agenda-skip-function
-                   '(or (org-agenda-skip-entry-if 'todo '("DONE" "CANC"))
-                        (org-agenda-skip-entry-if 'notdeadline)))
-                  (org-agenda-sorting-strategy '(deadline-up))
-                  (org-agenda-view-columns-initially t)))))
-  ;; When hitting alt-return on a header, please create a new one without
-  ;; messing up the one I'm standing on.
-  ;; Let me refile to any level header
+    (add-to-list 'org-agenda-custom-commands
+                 '("g" "GTD View"
+                   tags "+SCHEDULED<=\"<+0d>\""
+                   ((org-agenda-overriding-columns-format
+                     "%40ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %TAGS")
+                    (org-agenda-skip-function
+                     '(org-agenda-skip-entry-if 'nottodo 'todo))
+                    (org-agenda-sorting-strategy '(priority-down scheduled-down))
+                    (org-agenda-view-columns-initially t))))
+    (add-to-list 'org-agenda-custom-commands
+                 '("d" "Deadline in next month"
+                   tags "+DEADLINE<=\"<+2m>\""
+                   ((org-agenda-overriding-columns-format
+                     "%40ITEM %TODO %3PRIORITY %SCHEDULED %DEADLINE %TAGS")
+                    (org-agenda-skip-function
+                     '(or (org-agenda-skip-entry-if 'todo '("DONE" "CANC"))
+                          (org-agenda-skip-entry-if 'notdeadline)))
+                    (org-agenda-sorting-strategy '(deadline-up))
+                    (org-agenda-view-columns-initially t)))))
   ;; create a short-cut to recover files
   (spacemacs/set-leader-keys "or" 'recover-this-file)
-  ;; CIDER make REPL work with Enter
-  (define-key paredit-mode-map (kbd "RET") nil)
-  ;; CIDER evaluate code using Ctrl + Enter (from https://clojurians.zulipchat.com/#narrow/stream/151964-cider) - DOESN'T WORK
-  (add-hook 'cider-repl-mode-hook
-            '(lambda () (local-unset-key (kbd "RET"))))
-  (add-hook 'cider-repl-mode-hook
-            '(lambda () (local-set-key (kbd "RET") 'cider-repl-newline-and-indent)))
-  (add-hook 'cider-repl-mode-hook
-            '(lambda () (local-set-key (kbd "C-RET") 'cider-repl-return)))
-  (dired-quick-sort-suppress-setup-warning t)
+  (with-eval-after-load 'paredit
+    ;; Disable the default RET keybinding in paredit-mode
+    (define-key paredit-mode-map (kbd "RET") nil)
+    ;; Rebind RET in cider-repl-mode to support new lines without sending code
+    (add-hook 'cider-repl-mode-hook
+              (lambda ()
+                (local-set-key (kbd "RET") 'cider-repl-newline-and-indent)
+                (local-set-key (kbd "C-RET") 'cider-repl-return)))
+    )
+  ;; Not sure why I have this
+  (with-eval-after-load 'dired-quick-sort
+    (dired-quick-sort-suppress-setup-warning t))
   ;; Access Python virtual environment keybindings from org-mode
   (add-to-list 'spacemacs--python-pipenv-modes 'org-mode)
   ;; Use the right path for Python
@@ -690,7 +691,7 @@ before packages are loaded."
   (setenv "PATH" (concat "C:\\MyPrograms\\Python;" (getenv "PATH")))
   ;; Don't autopopulate numbers - DOESN'T WORK
   (setq company-dabbrev-char-regexp "[A-z:-]")
-)
+  )
 
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
@@ -699,18 +700,18 @@ before packages are loaded."
 This is an auto-generated function, do not modify its content directly, use
 Emacs customize menu instead.
 This function is called at the very end of Spacemacs initialization."
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-agenda-files nil)
- '(package-selected-packages
-   '(gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-)
+  (custom-set-variables
+   ;; custom-set-variables was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   '(org-agenda-files nil)
+   '(package-selected-packages
+     '(gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
+  (custom-set-faces
+   ;; custom-set-faces was added by Custom.
+   ;; If you edit it by hand, you could mess it up, so be careful.
+   ;; Your init file should contain only one such instance.
+   ;; If there is more than one, they won't work right.
+   )
+  )

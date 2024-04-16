@@ -607,7 +607,8 @@ before packages are loaded."
   (spacemacs/toggle-visual-line-navigation-globally-on)
   (with-eval-after-load 'org
     ;; Moved org :variables here
-    (setq org-insert-heading-respect-content t
+    (setq org-enable-reveal-js-support t
+          org-insert-heading-respect-content t
           org-startup-indented t
           org-directory "~/org"
           org-agenda-files '("~/org/work/prog.org")
@@ -669,9 +670,48 @@ before packages are loaded."
                      '(or (org-agenda-skip-entry-if 'todo '("DONE" "CANC"))
                           (org-agenda-skip-entry-if 'notdeadline)))
                     (org-agenda-sorting-strategy '(deadline-up))
-                    (org-agenda-view-columns-initially t)))))
+                    (org-agenda-view-columns-initially t))))
+    ;; Improve the way org mode opens source code blocks
+    (defun my/org-edit-and-open-repl ()
+      (interactive)
+      ;; Capture the language and session name before editing
+      (let* ((element (org-element-at-point))
+             (lang (org-element-property :language element))
+             (session (org-element-property :session element))
+             (repl-buffer-name (cond ((string= lang "R") (or session "*R*"))
+                                     ((string= lang "python") (or session "*py*"))
+                                     ((string= lang "clojure") (or session "*clj*")))))
+        (if lang
+            (progn
+              ;; Store the language before switching context
+              (message "Editing source block: %s with session: %s" lang session)
+              ;; Now call org-edit-special to edit the source code
+              (org-edit-special)
+              ;; After editing, attempt to open the appropriate REPL
+              (when repl-buffer-name
+                (my/open-repl repl-buffer-name)))
+          (message "No language detected for source block."))))
+    (defun my/open-repl (repl-buffer-name)
+      "Attempt to open a REPL in a split window if it exists."
+      (when (get-buffer repl-buffer-name)
+        (split-window-right)  ; Split window to the right
+        (other-window 1)      ; Move focus to the new window
+        (switch-to-buffer repl-buffer-name)
+        (message "Switched to buffer: %s" repl-buffer-name)))
+  (spacemacs/set-leader-keys-for-major-mode 'org-mode "'" 'my/org-edit-and-open-repl))
   ;; create a short-cut to recover files
   (spacemacs/set-leader-keys "or" 'recover-this-file)
+  ;; Custom keybindings
+  (spacemacs/set-leader-keys
+    "f R" 'recover-this-file
+    "f n" 'spacemacs/rename-current-buffer-file)
+  (spacemacs-bootstrap/init-which-key)
+  (which-key-add-key-based-replacements
+    "SPC f n" "Rename")
+  (which-key-add-key-based-replacements
+    "SPC f R" "Recover")
+  (spacemacs/set-leader-keys-for-major-mode 'clojure-mode
+    "s s" 'cider-switch-to-repl-buffer)
   (with-eval-after-load 'paredit
     ;; Disable the default RET keybinding in paredit-mode
     (define-key paredit-mode-map (kbd "RET") nil)
@@ -692,7 +732,6 @@ before packages are loaded."
   ;; Don't autopopulate numbers - DOESN'T WORK
   (setq company-dabbrev-char-regexp "[A-z:-]")
   )
-
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
 (defun dotspacemacs/emacs-custom-settings ()
@@ -700,18 +739,18 @@ before packages are loaded."
 This is an auto-generated function, do not modify its content directly, use
 Emacs customize menu instead.
 This function is called at the very end of Spacemacs initialization."
-  (custom-set-variables
-   ;; custom-set-variables was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   '(org-agenda-files nil)
-   '(package-selected-packages
-     '(gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
-  (custom-set-faces
-   ;; custom-set-faces was added by Custom.
-   ;; If you edit it by hand, you could mess it up, so be careful.
-   ;; Your init file should contain only one such instance.
-   ;; If there is more than one, they won't work right.
-   )
-  )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(org-agenda-files nil)
+ '(package-selected-packages
+   '(org-re-reveal gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+)

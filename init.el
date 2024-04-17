@@ -670,37 +670,7 @@ before packages are loaded."
                      '(or (org-agenda-skip-entry-if 'todo '("DONE" "CANC"))
                           (org-agenda-skip-entry-if 'notdeadline)))
                     (org-agenda-sorting-strategy '(deadline-up))
-                    (org-agenda-view-columns-initially t))))
-    ;; Improve the way org mode opens source code blocks
-    (defun my/org-edit-and-open-repl ()
-      (interactive)
-      ;; Capture the language and session name before editing
-      (let* ((element (org-element-at-point))
-             (lang (org-element-property :language element))
-             (session (org-element-property :session element))
-             (repl-buffer-name (cond ((string= lang "R") (or session "*R*"))
-                                     ((string= lang "python") (or session "*py*"))
-                                     ((string= lang "clojure") (or session "*clj*")))))
-        (if lang
-            (progn
-              ;; Store the language before switching context
-              (message "Editing source block: %s with session: %s" lang session)
-              ;; Now call org-edit-special to edit the source code
-              (org-edit-special)
-              ;; After editing, attempt to open the appropriate REPL
-              (when repl-buffer-name
-                (my/open-repl repl-buffer-name)))
-          (message "No language detected for source block."))))
-    (defun my/open-repl (repl-buffer-name)
-      "Attempt to open a REPL in a split window if it exists."
-      (when (get-buffer repl-buffer-name)
-        (split-window-right)  ; Split window to the right
-        (other-window 1)      ; Move focus to the new window
-        (switch-to-buffer repl-buffer-name)
-        (message "Switched to buffer: %s" repl-buffer-name)))
-  (spacemacs/set-leader-keys-for-major-mode 'org-mode "'" 'my/org-edit-and-open-repl))
-  ;; create a short-cut to recover files
-  (spacemacs/set-leader-keys "or" 'recover-this-file)
+                    (org-agenda-view-columns-initially t)))))
   ;; Custom keybindings
   (spacemacs/set-leader-keys
     "f R" 'recover-this-file

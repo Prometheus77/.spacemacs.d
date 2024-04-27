@@ -607,7 +607,8 @@ before packages are loaded."
   (spacemacs/toggle-visual-line-navigation-globally-on)
   (with-eval-after-load 'org
     ;; Moved org :variables here
-    (setq org-enable-reveal-js-support t
+    (setq org-src-window-setup 'split-window-right
+          org-enable-reveal-js-support t
           org-insert-heading-respect-content t
           org-startup-indented t
           org-directory "~/org"
@@ -620,7 +621,7 @@ before packages are loaded."
           org-startup-truncated nil
           org-ellipsis "▼"
           org-babel-load-languages '((emacs-lisp . t) (R . t) (python . t) (clojure . t))
-          org-babel-clojure-nrepl-timeout nil
+          nrepl-sync-request-timeout nil
           org-confirm-babel-evaluate nil
           org-file-apps '((auto-mode . emacs)
                           ("\\.png\\'" . "msedge %s")
@@ -691,15 +692,12 @@ before packages are loaded."
                 (local-set-key (kbd "RET") 'cider-repl-newline-and-indent)
                 (local-set-key (kbd "C-RET") 'cider-repl-return)))
     )
-  ;; Not sure why I have this
-  (with-eval-after-load 'dired-quick-sort
-    (dired-quick-sort-suppress-setup-warning t))
   ;; Access Python virtual environment keybindings from org-mode
   (add-to-list 'spacemacs--python-pipenv-modes 'org-mode)
   ;; Use the right path for Python
   (setq exec-path (cons "C:/MyPrograms/Python" exec-path))
   (setenv "PATH" (concat "C:\\MyPrograms\\Python;" (getenv "PATH")))
-  ;; Don't autopopulate numbers - DOESN'T WORK
+  ;; Don't autopopulate numbers
   (setq company-dabbrev-char-regexp "[A-z:-]")
   )
 ;; Do not write anything past this comment. This is where Emacs will
@@ -716,7 +714,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(org-agenda-files nil)
  '(package-selected-packages
-   '(org-re-reveal gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
+   '(ox-reveal org-re-reveal gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

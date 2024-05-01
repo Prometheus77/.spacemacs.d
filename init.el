@@ -88,8 +88,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages
-   '(gptel)
+   dotspacemacs-additional-packages '(ox-reveal)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -104,8 +103,7 @@ This function should only modify configuration layer settings."
    ;; installs only the used packages but won't delete unused ones. `all'
    ;; installs *all* packages supported by Spacemacs and never uninstalls them.
    ;; (default is `used-only')
-   dotspacemacs-install-packages 'used-only
-   ))
+   dotspacemacs-install-packages 'used-only))
 
 (defun dotspacemacs/init ()
   "Initialization:
@@ -601,10 +599,9 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-  (require 'gptel)
   ;; Force visual line numbers and visual line navigation
-  (spacemacs/toggle-visual-line-numbers-on)
-  (spacemacs/toggle-visual-line-navigation-globally-on)
+  ;; (spacemacs/toggle-visual-line-numbers-on)
+  ;; (spacemacs/toggle-visual-line-navigation-globally-on)
   (with-eval-after-load 'org
     ;; Moved org :variables here
     (setq org-src-window-setup 'split-window-right
@@ -653,6 +650,9 @@ before packages are loaded."
           org-refile-targets (quote ((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9)))
           org-startup-with-inline-images t
           org-agenda-custom-commands '())
+    ;; Make sure org-reveal is loaded
+    (require 'ox-reveal)
+    (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js")
     (add-to-list 'org-agenda-custom-commands
                  '("g" "GTD View"
                    tags "+SCHEDULED<=\"<+0d>\""
@@ -672,6 +672,8 @@ before packages are loaded."
                           (org-agenda-skip-entry-if 'notdeadline)))
                     (org-agenda-sorting-strategy '(deadline-up))
                     (org-agenda-view-columns-initially t)))))
+  ;; org-reveal
+  
   ;; Custom keybindings
   (spacemacs/set-leader-keys
     "f R" 'recover-this-file

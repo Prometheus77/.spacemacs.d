@@ -599,9 +599,6 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-  ;; Force visual line numbers and visual line navigation
-  ;; (spacemacs/toggle-visual-line-numbers-on)
-  ;; (spacemacs/toggle-visual-line-navigation-globally-on)
   (with-eval-after-load 'org
     ;; Moved org :variables here
     (setq org-src-window-setup 'split-window-right
@@ -624,7 +621,7 @@ before packages are loaded."
                           ("\\.png\\'" . "msedge %s")
                           ("\\.jpg\\'" . "msedge %s")
                           ("\\.gif\\'" . "msedge %s")
-                          ("\\.pdf\\'" . "msedge %s")
+                          ("\\.pdf\\'" . (lambda (file link) (start-process "acrobat" nil "C:/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe" (convert-standard-filename file))))
                           ("\\.html\\'" . "msedge %s")
                           ("\\.xlsx\\'" . "EXCEL %s")
                           ("\\.docx\\'" . "WINWORD %s"))
@@ -672,8 +669,6 @@ before packages are loaded."
                           (org-agenda-skip-entry-if 'notdeadline)))
                     (org-agenda-sorting-strategy '(deadline-up))
                     (org-agenda-view-columns-initially t)))))
-  ;; org-reveal
-  
   ;; Custom keybindings
   (spacemacs/set-leader-keys
     "f R" 'recover-this-file

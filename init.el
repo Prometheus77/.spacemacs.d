@@ -32,7 +32,8 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(;; ----------------------------------------------------------------
+   '(csv
+     ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
      ;; Uncomment some layer names and press `SPC f e R' (Vim style) or
      ;; `M-m f e R' (Emacs style) to install them.
@@ -44,7 +45,6 @@ This function should only modify configuration layer settings."
      better-defaults
      (clojure :variables
               clojure-backend 'cider)
-     csharp
      emacs-lisp
      (ess :variables
           ess-ask-for-ess-directory nil
@@ -599,6 +599,14 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  (defun sqlfluff-lint ()
+    "Run SQLFluff lint on the current buffer."
+    (interactive)
+    (let ((command (format "sqlfluff fix %s" (buffer-file-name))))
+      (compilation-start command)))
+  (with-eval-after-load 'sql
+    (define-key sql-mode-map (kbd "C-c l") 'sqlfluff-lint)
+    (define-key sql-mode-map (kbd "C-c f") 'sqlfluff-fix))
   (with-eval-after-load 'org
     ;; Moved org :variables here
     (setq org-src-window-setup 'split-window-right
@@ -711,7 +719,7 @@ This function is called at the very end of Spacemacs initialization."
  ;; If there is more than one, they won't work right.
  '(org-agenda-files nil)
  '(package-selected-packages
-   '(ox-reveal org-re-reveal gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
+   '(csv-mode ox-reveal org-re-reveal gh-md markdown-toc mmm-mode fsharp-mode auto-complete company-lua lua-mode nrepl-sync bmx-mode ivy ggtags powershell emmet-mode helm-css-scss simple-httpd prettier-js pug-mode haml-mode scss-mode slim-mode tagedit web-beautify web-mode esh-help eshell-prompt-extras eshell-z multi-term shell-pop terminal-here xterm-color gptel helm auto-highlight-symbol cider smartparens yasnippet lsp-mode treemacs markdown-mode magit git-commit transient yasnippet-snippets yapfify ws-butler writeroom-mode with-editor winum which-key wfnames volatile-highlights vim-powerline vi-tilde-fringe uuidgen unfill undo-tree treemacs-projectile treemacs-persp treemacs-magit treemacs-icons-dired treemacs-evil toc-org term-cursor symon symbol-overlay string-inflection string-edit-at-point sphinx-doc spacemacs-whitespace-cleanup spacemacs-purpose-popwin spaceline space-doc smeargle sesman restart-emacs request rainbow-delimiters quickrun pytest pylookup pyenv-mode pydoc py-isort popwin poetry pippel pipenv pip-requirements pcre2el password-generator parseedn paradox overseer orgit org-superstar org-rich-yank org-projectile org-present org-pomodoro org-mime org-download org-contrib org-cliplink open-junk-file nose nameless mwim multi-line magit-section macrostep lsp-ui lsp-treemacs lsp-python-ms lsp-pyright lsp-origami lorem-ipsum live-py-mode link-hint inspector info+ indent-guide importmagic hybrid-mode hungry-delete htmlize holy-mode hl-todo highlight-parentheses highlight-numbers highlight-indentation hide-comnt helm-xref helm-themes helm-swoop helm-pydoc helm-purpose helm-projectile helm-org-rifle helm-org helm-mode-manager helm-make helm-lsp helm-ls-git helm-git-grep helm-descbinds helm-company helm-cider helm-c-yasnippet helm-ag google-translate golden-ratio gnuplot gitignore-templates git-timemachine git-modes git-messenger git-link git-gutter-fringe fuzzy flycheck-pos-tip flycheck-package flycheck-elsa flx-ido fancy-battery eyebrowse expand-region evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-org evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-exchange evil-evilified-state evil-escape evil-easymotion evil-collection evil-cleverparens evil-args evil-anzu ess-R-data-view emr elisp-slime-nav elisp-def editorconfig dumb-jump drag-stuff dotenv-mode dired-quick-sort diminish devdocs define-word cython-mode company-anaconda column-enforce-mode code-cells clojure-snippets clojure-mode clean-aindent-mode cider-eval-sexp-fu cfrs centered-cursor-mode browse-at-remote blacken auto-yasnippet auto-compile all-the-icons aggressive-indent ace-window ace-link ace-jump-helm-line ac-ispell)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -45,7 +45,6 @@ This function should only modify configuration layer settings."
      better-defaults
      (clojure :variables
               clojure-backend 'cider)
-     csharp
      emacs-lisp
      (ess :variables
           ess-ask-for-ess-directory nil
@@ -615,6 +614,14 @@ before packages are loaded."
     (require 'emmet-mode)
     (add-hook 'sgml-mode-hook 'emmet-mode) ;; For HTML
     (add-hook 'css-mode-hook 'emmet-mode)) ;; For CSS
+  (defun sqlfluff-lint ()
+    "Run SQLFluff lint on the current buffer."
+    (interactive)
+    (let ((command (format "sqlfluff fix %s" (buffer-file-name))))
+      (compilation-start command)))
+  (with-eval-after-load 'sql
+    (define-key sql-mode-map (kbd "C-c l") 'sqlfluff-lint)
+    (define-key sql-mode-map (kbd "C-c f") 'sqlfluff-fix))
   ;; Org-mode customization
   (with-eval-after-load 'org
     ;; Moved org :variables here

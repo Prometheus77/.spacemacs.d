@@ -638,7 +638,7 @@ before packages are loaded."
                           ("\\.png\\'" . "msedge %s")
                           ("\\.jpg\\'" . "msedge %s")
                           ("\\.gif\\'" . "msedge %s")
-                          ("\\.pdf\\'" . "msedge %s")
+                          ("\\.pdf\\'" . (lambda (file link) (start-process "acrobat" nil "C:/Program Files/Adobe/Acrobat DC/Acrobat/Acrobat.exe" (convert-standard-filename file))))
                           ("\\.html\\'" . "msedge %s")
                           ("\\.xlsx\\'" . "EXCEL %s")
                           ("\\.docx\\'" . "WINWORD %s"))

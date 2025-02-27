@@ -61,6 +61,7 @@ This function should only modify configuration layer settings."
      markdown
      ;; multiple-cursors
      org
+     pandoc
      (python :variables
              python-shell-interpreter "C:\\MyPrograms\\Anaconda3\\python.exe"
              python-backend 'anaconda
@@ -88,7 +89,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(ox-reveal)
+   dotspacemacs-additional-packages '(emmet-mode ox-reveal)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -599,6 +600,20 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  ;; sql lsp-mode
+  (use-package lsp-mode
+    :ensure t
+    :config
+    (setq lsp-sqls-server '("sql-language-server" "up" "--method" "stdio")))
+  ;; Stay in evil mode
+  (setq evil-escape-key-sequence nil)
+  ;; Show .Rmd in markdown mode
+  (add-to-list 'auto-mode-alist '("\\.Rmd\\'" . markdown-mode))
+  ;; For use with org-reveal
+  (with-eval-after-load 'sgml-mode
+    (require 'emmet-mode)
+    (add-hook 'sgml-mode-hook 'emmet-mode) ;; For HTML
+    (add-hook 'css-mode-hook 'emmet-mode)) ;; For CSS
   (defun sqlfluff-lint ()
     "Run SQLFluff lint on the current buffer."
     (interactive)
@@ -607,6 +622,7 @@ before packages are loaded."
   (with-eval-after-load 'sql
     (define-key sql-mode-map (kbd "C-c l") 'sqlfluff-lint)
     (define-key sql-mode-map (kbd "C-c f") 'sqlfluff-fix))
+  ;; Org-mode customization
   (with-eval-after-load 'org
     ;; Moved org :variables here
     (require 'cider)
@@ -706,6 +722,14 @@ before packages are loaded."
   (setenv "PATH" (concat "C:\\MyPrograms\\Python;" (getenv "PATH")))
   ;; Don't autopopulate numbers
   (setq company-dabbrev-char-regexp "[A-z:-]")
+  ;; Fixes for ESS-R mode
+  (add-hook 'ess-r-mode-hook #'lsp)
+  (with-eval-after-load 'lsp-mode
+    (require 'lsp-r)
+    (add-hook 'ess-r-mode-hook #'lsp))
+  (setq lsp-prefer-flymake nil)
+  (setq lsp-log-io t)
+  (add-hook 'ess-r-mode-hook (lambda () (flycheck-mode -1)))
   )
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.

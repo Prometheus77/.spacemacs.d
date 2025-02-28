@@ -51,7 +51,6 @@ This function should only modify configuration layer settings."
           ess-ask-for-ess-directory nil
           ess-r-backend 'lsp
           ess-eval-visibly 'nowait)
-     fsharp
      git
      helm
      html
@@ -62,7 +61,9 @@ This function should only modify configuration layer settings."
      ;; multiple-cursors
      org
      pandoc
-     python
+     (python :variables
+             python-backend 'lsp
+             python-lsp-server 'pyright)
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
@@ -601,6 +602,8 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
+  ;; find-file in home directory
+  (setq default-directory (expand-file-name "~/"))
   )
 
 
@@ -618,28 +621,8 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
-  ;; TODO make sql interactive mode work
-  ;; fix "Auto-evilifcation" warnings
-  ;; gptel
-  (use-package gptel
-    :ensure t
-    :config
-    (setq auth-sources '("~/.authinfo")))
-  ;; gptel keybindings
-  (spacemacs/set-leader-keys
-    "a g s" 'gptel-send
-    "a g c" 'gptel
-    "a g r" 'gptel-rewrite
-    "a g m" 'gptel-menu
-    "a g a" 'gptel-add
-    "a g f" 'gptel-add-file
-    "a g o t" 'gptel-org-set-topic
-    "a g o p" 'gptel-org-set-properties
-    "a g u" (lambda () (interactive) (setq current-prefix-arg '(4)) (call-interactively 'gptel-send)))
-  ;; Set Python interpreter to use the .venv of the current project
-  (let ((project-venv-path (expand-file-name ".venv" (locate-dominating-file default-directory ".venv"))))
-    (when (and project-venv-path (file-exists-p (concat project-venv-path "/Scripts/python.exe"))) ;; For Windows
-      (setq python-shell-interpreter (concat project-venv-path "/Scripts/python.exe"))))
+  ;; temporary file directory
+  (setq temporary-file-directory "~/TEMP/")
   ;; sql lsp-mode
   (use-package lsp-mode
     :ensure t
@@ -664,6 +647,11 @@ before packages are loaded."
     (define-key sql-mode-map (kbd "C-c f") 'sqlfluff-fix))
   ;; Org-mode customization
   (with-eval-after-load 'org
+    ;; code snippets
+    (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+    (add-to-list 'org-structure-template-alist '("r" . "src R"))
+    (add-to-list 'org-structure-template-alist '("clj" . "src clojure"))
+    (add-to-list 'org-structure-template-alist '("sql" . "src sql"))
     ;; Moved org :variables here
     (require 'cider)
     (add-to-list 'org-babel-tangle-lang-exts '("clojure" . "clj"))
@@ -672,7 +660,7 @@ before packages are loaded."
           org-insert-heading-respect-content t
           org-startup-indented t
           org-directory "~/org"
-          org-agenda-files '("~/org/work/prog.org")
+          org-agenda-files '("~/org/prog/prog.org")
           org-agenda-skip-deadline-if-done t
           org-agenda-skip-scheduled-if-done t
           org-want-todo-bindings t
@@ -692,23 +680,23 @@ before packages are loaded."
                           ("\\.html\\'" . "msedge %s")
                           ("\\.xlsx\\'" . "EXCEL %s")
                           ("\\.docx\\'" . "WINWORD %s"))
-          org-default-notes-file "~/org/work/prog.org"
+          org-default-notes-file "~/org/prog/prog.org"
           org-capture-templates
-          '(("t" "Todo" entry (file+headline "~/org/work/prog.org" "Tasks")
+          '(("t" "Todo" entry (file+headline "~/org/main.org" "Tasks")
              "* TODO %?\nSCHEDULED: %t " :prepend t)
-            ("n" "Next action" entry (file+headline "~/org/work/prog.org" "Tasks")
+            ("n" "Next action" entry (file+headline "~/org/main.org" "Tasks")
              "* NEXT %?\nSCHEDULED: %t " :prepend t)
-            ("f" "Follow-up" entry (file+headline "~/org/work/prog.org" "Tasks")
+            ("f" "Follow-up" entry (file+headline "~/org/main.org" "Tasks")
              "* FOLL %?\nSCHEDULED: %t " :prepend t)
-            ("m" "Meeting" entry (file+headline "~/org/work/prog.org" "Meetings")
+            ("m" "Meeting" entry (file+headline "~/org/main.org" "Meetings")
              "* %? %u\n%t\n** Notes\n** Action items" :clock-in t :clock-resume t)
-            ("M" "Meeting (plan)" entry (file+headline "~/org/work/prog.org" "Meetings")
+            ("M" "Meeting (plan)" entry (file+headline "~/org/main.org" "Meetings")
              "* %? \nSCHEDULED: %^T\nOBJECTIVE: \n** Agenda\n** Notes\n** Action items")
-            ("e" "Email or message" entry (file+headline "~/org/work/prog.org" "Messages")
+            ("e" "Email or message" entry (file+headline "~/org/main.org" "Messages")
              "* %?\nSCHEDULED: %t\n [[~/org/messages/NAME.msg]]" :prepend t)
-            ("p" "Paste clipboard" entry (file+headline "~/org/work/prog.org" "UNFILED")
+            ("p" "Paste clipboard" entry (file+headline "~/org/main.org" "UNFILED")
              "* %?\n\n%x")
-            ("i" "Idea" entry (file+headline "~/org/work/prog.org" "Ideas")
+            ("i" "Idea" entry (file+headline "~/org/main.org" "Ideas")
              "* %? \n%t"))
           org-insert-heading-respect-content t
           org-refile-targets (quote ((nil :maxlevel . 9) (org-agenda-files :maxlevel . 9)))
@@ -758,9 +746,6 @@ before packages are loaded."
     )
   ;; Access Python virtual environment keybindings from org-mode
   (add-to-list 'spacemacs--python-pipenv-modes 'org-mode)
-  ;; Use the right path for Python
-  (setq exec-path (cons "C:/MyPrograms/Python" exec-path))
-  (setenv "PATH" (concat "C:\\MyPrograms\\Python;" (getenv "PATH")))
   ;; Don't autopopulate numbers
   (setq company-dabbrev-char-regexp "[A-z:-]")
   ;; Fixes for ESS-R mode
@@ -786,54 +771,48 @@ This function is called at the very end of Spacemacs initialization."
    ;; If there is more than one, they won't work right.
    '(org-agenda-files nil)
    '(package-selected-packages
-     '(ac-ispell ace-jump-helm-line ace-link ace-window aggressive-indent
-                 all-the-icons auto-compile auto-complete auto-highlight-symbol
-                 auto-yasnippet blacken bmx-mode browse-at-remote
-                 centered-cursor-mode cfrs cider cider-eval-sexp-fu
-                 clean-aindent-mode clojure-mode clojure-snippets code-cells
-                 column-enforce-mode company-anaconda company-lua csv-mode
-                 cython-mode define-word devdocs diminish dired-quick-sort
-                 dotenv-mode drag-stuff dumb-jump editorconfig elisp-def
-                 elisp-slime-nav emmet-mode emr esh-help eshell-prompt-extras
-                 eshell-z ess-R-data-view evil-anzu evil-args evil-cleverparens
-                 evil-collection evil-easymotion evil-escape evil-evilified-state
-                 evil-exchange evil-goggles evil-iedit-state evil-indent-plus
-                 evil-lion evil-lisp-state evil-matchit evil-mc
-                 evil-nerd-commenter evil-numbers evil-org evil-surround
-                 evil-textobj-line evil-tutor evil-unimpaired
-                 evil-visual-mark-mode evil-visualstar expand-region eyebrowse
-                 fancy-battery flx-ido flycheck-elsa flycheck-package
-                 flycheck-pos-tip fsharp-mode fuzzy ggtags gh-md git-commit
-                 git-gutter-fringe git-link git-messenger git-modes
-                 git-timemachine gitignore-templates gnuplot golden-ratio
-                 google-translate gptel haml-mode helm helm-ag helm-c-yasnippet
-                 helm-cider helm-company helm-css-scss helm-descbinds
-                 helm-git-grep helm-ls-git helm-lsp helm-make helm-mode-manager
-                 helm-org helm-org-rifle helm-projectile helm-purpose helm-pydoc
-                 helm-swoop helm-themes helm-xref hide-comnt highlight-indentation
-                 highlight-numbers highlight-parentheses hl-todo holy-mode htmlize
-                 hungry-delete hybrid-mode importmagic indent-guide info+
-                 inspector ivy link-hint live-py-mode lorem-ipsum lsp-mode
-                 lsp-origami lsp-pyright lsp-python-ms lsp-treemacs lsp-ui
-                 lua-mode macrostep magit magit-section markdown-mode markdown-toc
-                 mmm-mode multi-line multi-term mwim nameless nose nrepl-sync
-                 open-junk-file org-cliplink org-contrib org-download org-mime
-                 org-pomodoro org-present org-projectile org-re-reveal
-                 org-rich-yank org-superstar orgit overseer ox-reveal paradox
-                 parseedn password-generator pcre2el pip-requirements pipenv
-                 pippel poetry popwin powershell prettier-js pug-mode py-isort
-                 pydoc pyenv-mode pylookup pytest quelpa quickrun
-                 rainbow-delimiters request restart-emacs scss-mode sesman
-                 shell-pop simple-httpd slim-mode smartparens smeargle space-doc
-                 spaceline spacemacs-purpose-popwin spacemacs-whitespace-cleanup
-                 sphinx-doc string-edit-at-point string-inflection symbol-overlay
-                 symon tagedit term-cursor terminal-here toc-org transient
-                 treemacs treemacs-evil treemacs-icons-dired treemacs-magit
-                 treemacs-persp treemacs-projectile undo-tree unfill uuidgen
-                 vi-tilde-fringe vim-powerline volatile-highlights web-beautify
-                 web-mode wfnames which-key winum with-editor writeroom-mode
-                 ws-butler xterm-color yaml-mode yapfify yasnippet
-                 yasnippet-snippets)))
+     '(a ac-ispell ace-jump-helm-line ace-link ace-window aggressive-indent
+         all-the-icons auto-compile auto-complete auto-highlight-symbol
+         auto-yasnippet blacken bmx-mode browse-at-remote centered-cursor-mode
+         cfrs cider cider-eval-sexp-fu clean-aindent-mode clojure-mode
+         clojure-snippets closql code-cells code-review column-enforce-mode
+         company-anaconda company-lua csv-mode cython-mode deferred define-word
+         devdocs diminish dired-quick-sort dotenv-mode drag-stuff dumb-jump
+         editorconfig elisp-def elisp-slime-nav emacsql emmet-mode emojify emr
+         esh-help eshell-prompt-extras eshell-z ess-R-data-view evil-anzu
+         evil-args evil-cleverparens evil-collection evil-easymotion evil-escape
+         evil-evilified-state evil-exchange evil-goggles evil-iedit-state
+         evil-indent-plus evil-lion evil-lisp-state evil-matchit evil-mc
+         evil-nerd-commenter evil-numbers evil-org evil-surround evil-textobj-line
+         evil-tutor evil-unimpaired evil-visual-mark-mode evil-visualstar
+         expand-region eyebrowse fancy-battery flx-ido flycheck-elsa
+         flycheck-package flycheck-pos-tip forge fsharp-mode fuzzy ggtags gh-md
+         ghub git-commit git-gutter-fringe git-link git-messenger git-modes
+         git-timemachine gitignore-templates gnuplot golden-ratio google-translate
+         gptel haml-mode helm helm-ag helm-c-yasnippet helm-cider helm-company
+         helm-css-scss helm-descbinds helm-git-grep helm-ls-git helm-lsp helm-make
+         helm-mode-manager helm-org helm-org-rifle helm-projectile helm-purpose
+         helm-pydoc helm-swoop helm-themes helm-xref hide-comnt
+         highlight-indentation highlight-numbers highlight-parentheses hl-todo
+         holy-mode htmlize hungry-delete hybrid-mode importmagic indent-guide
+         info+ inspector ivy link-hint live-py-mode lorem-ipsum lsp-mode
+         lsp-origami lsp-pyright lsp-python-ms lsp-treemacs lsp-ui lua-mode
+         macrostep magit magit-section markdown-mode markdown-toc mmm-mode
+         multi-line multi-term mwim nameless nose nrepl-sync open-junk-file
+         org-cliplink org-contrib org-download org-mime org-pomodoro org-present
+         org-projectile org-re-reveal org-rich-yank org-superstar orgit overseer
+         ox-reveal paradox parseedn password-generator pcre2el pip-requirements
+         pipenv pippel poetry popwin powershell prettier-js pug-mode py-isort
+         pydoc pyenv-mode pylookup pytest quickrun rainbow-delimiters request
+         restart-emacs scss-mode sesman shell-pop simple-httpd slim-mode
+         smartparens smeargle space-doc spaceline spacemacs-purpose-popwin
+         spacemacs-whitespace-cleanup sphinx-doc string-edit-at-point
+         string-inflection symbol-overlay symon tagedit term-cursor terminal-here
+         toc-org transient treemacs treemacs-evil treemacs-icons-dired
+         treemacs-magit treemacs-persp treemacs-projectile treepy undo-tree unfill
+         uuidgen vi-tilde-fringe vim-powerline volatile-highlights web-beautify
+         web-mode wfnames which-key winum with-editor writeroom-mode ws-butler
+         xterm-color yaml yaml-mode yapfify yasnippet yasnippet-snippets)))
   (custom-set-faces
    ;; custom-set-faces was added by Custom.
    ;; If you edit it by hand, you could mess it up, so be careful.

@@ -62,10 +62,7 @@ This function should only modify configuration layer settings."
      ;; multiple-cursors
      org
      pandoc
-     (python :variables
-             python-shell-interpreter "C:\\MyPrograms\\Anaconda3\\python.exe"
-             python-backend 'anaconda
-             flycheck-python-pycompile-executable "C:\\MyPrograms\\Anaconda3\\python.exe")
+     python
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)

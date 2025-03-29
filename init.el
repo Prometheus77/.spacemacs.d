@@ -660,7 +660,7 @@ before packages are loaded."
           org-insert-heading-respect-content t
           org-startup-indented t
           org-directory "~/org"
-          org-agenda-files '("~/org/prog/prog.org")
+          org-agenda-files '("~/org/main.org/g")
           org-agenda-skip-deadline-if-done t
           org-agenda-skip-scheduled-if-done t
           org-want-todo-bindings t
@@ -680,7 +680,7 @@ before packages are loaded."
                           ("\\.html\\'" . "msedge %s")
                           ("\\.xlsx\\'" . "EXCEL %s")
                           ("\\.docx\\'" . "WINWORD %s"))
-          org-default-notes-file "~/org/prog/prog.org"
+          org-default-notes-file "~/org/main.org/g"
           org-capture-templates
           '(("t" "Todo" entry (file+headline "~/org/main.org" "Tasks")
              "* TODO %?\nSCHEDULED: %t " :prepend t)

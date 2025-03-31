@@ -643,8 +643,17 @@ before packages are loaded."
     (let ((command (format "sqlfluff fix %s" (buffer-file-name))))
       (compilation-start command)))
   (with-eval-after-load 'sql
-    (define-key sql-mode-map (kbd "C-c l") 'sqlfluff-lint)
-    (define-key sql-mode-map (kbd "C-c f") 'sqlfluff-fix))
+    ;; Ensure that only a line that starts with GO (optionally with trailing whitespace)
+    ;; is treated as a batch terminator.
+    (setq sql-comint-go-regexp "^GO[ \t]*$")
+    ;; Your existing settings for sqlcmd:
+    (setq sql-ms-program "sqlcmd")
+    (setq sql-ms-options '("-E"))
+    (setq sql-server "RiskLiveSQL")
+    (setq sql-database "ViveDWDB")
+    (setq sql-user nil)
+    (setq sql-password nil)
+    (setq sql-pop-to-buffer-after-send-region t))
   ;; Org-mode customization
   (with-eval-after-load 'org
     ;; code snippets

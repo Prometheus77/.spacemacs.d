@@ -603,6 +603,7 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
   ;; find-file in home directory
+  (require 'org)
   (setq default-directory (expand-file-name "~/"))
   )
 
@@ -656,6 +657,10 @@ before packages are loaded."
     (setq sql-pop-to-buffer-after-send-region t))
   ;; Org-mode customization
   (with-eval-after-load 'org
+    ;; tangle-on-save
+    (add-hook 'org-mode-hook
+              (lambda () (add-hook 'after-save-hook #'org-babel-tangle
+                                   :append :local)))
     ;; code snippets
     (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
     (add-to-list 'org-structure-template-alist '("r" . "src R"))
@@ -669,7 +674,7 @@ before packages are loaded."
           org-insert-heading-respect-content t
           org-startup-indented t
           org-directory "~/org"
-          org-agenda-files '("~/org/main.org/g")
+          org-agenda-files '("~/org/main.org")
           org-agenda-skip-deadline-if-done t
           org-agenda-skip-scheduled-if-done t
           org-want-todo-bindings t
@@ -689,7 +694,7 @@ before packages are loaded."
                           ("\\.html\\'" . "msedge %s")
                           ("\\.xlsx\\'" . "EXCEL %s")
                           ("\\.docx\\'" . "WINWORD %s"))
-          org-default-notes-file "~/org/main.org/g"
+          org-default-notes-file "~/org/main.org"
           org-capture-templates
           '(("t" "Todo" entry (file+headline "~/org/main.org" "Tasks")
              "* TODO %?\nSCHEDULED: %t " :prepend t)

@@ -54,7 +54,7 @@ This function should only modify configuration layer settings."
      git
      helm
      html
-     javascript
+     (javascript :variables js-indent-level 1)
      lsp
      lua
      markdown
@@ -72,6 +72,10 @@ This function should only modify configuration layer settings."
      ;; spell-checking
      sql
      syntax-checking
+     (tree-sitter :variables
+                  tree-sitter-syntax-highlight-enable t
+                  tree-sitter-fold-enable t
+                  tree-sitter-fold-indicators-enable nil)
      version-control
      treemacs
      windows-scripts
@@ -87,7 +91,7 @@ This function should only modify configuration layer settings."
    ;; `dotspacemacs/user-config'. To use a local version of a package, use the
    ;; `:location' property: '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
-   dotspacemacs-additional-packages '(emmet-mode ox-reveal)
+   dotspacemacs-additional-packages '(emmet-mode ox-reveal vega-view)
 
    ;; A list of packages that cannot be updated.
    dotspacemacs-frozen-packages '()
@@ -594,6 +598,11 @@ default it calls `spacemacs/load-spacemacs-env' which loads the environment
 variables declared in `~/.spacemacs.env' or `~/.spacemacs.d/.spacemacs.env'.
 See the header of this file for more information."
   (spacemacs/load-spacemacs-env)
+  ;; Add pyright/npm global installs to PATH for Emacs
+  (let ((npm-global-bin (expand-file-name "~/scoop/persist/nodejs/bin")))
+    (when (file-directory-p npm-global-bin)
+      (setenv "PATH" (concat npm-global-bin path-separator (getenv "PATH")))
+      (add-to-list 'exec-path npm-global-bin)))
   )
 
 (defun dotspacemacs/user-init ()
@@ -637,11 +646,6 @@ before packages are loaded."
     (require 'emmet-mode)
     (add-hook 'sgml-mode-hook 'emmet-mode) ;; For HTML
     (add-hook 'css-mode-hook 'emmet-mode)) ;; For CSS
-  (defun sqlfluff-lint ()
-    "Run SQLFluff lint on the current buffer."
-    (interactive)
-    (let ((command (format "sqlfluff fix %s" (buffer-file-name))))
-      (compilation-start command)))
   (with-eval-after-load 'sql
     ;; Ensure that only a line that starts with GO (optionally with trailing whitespace)
     ;; is treated as a batch terminator.
@@ -654,7 +658,40 @@ before packages are loaded."
     (setq sql-user nil)
     (setq sql-password nil)
     (setq sql-pop-to-buffer-after-send-region t))
-  ;; Org-mode customization
+  ;; Custom keybindings
+  (spacemacs/set-leader-keys
+    "f R" 'recover-this-file
+    "f n" 'spacemacs/rename-current-buffer-file)
+  (spacemacs-bootstrap/init-which-key)
+  (which-key-add-key-based-replacements
+    "SPC f n" "Rename")
+  (which-key-add-key-based-replacements
+    "SPC f R" "Recover")
+  (spacemacs/set-leader-keys-for-major-mode 'clojure-mode
+    "s s" 'cider-switch-to-repl-buffer)
+  (with-eval-after-load 'paredit
+    ;; Disable the default RET keybinding in paredit-mode
+    (define-key paredit-mode-map (kbd "RET") nil)
+    ;; Rebind RET in cider-repl-mode to support new lines without sending code
+    (add-hook 'cider-repl-mode-hook
+              (lambda ()
+                (local-set-key (kbd "RET") 'cider-repl-newline-and-indent)
+                (local-set-key (kbd "C-RET") 'cider-repl-return)))
+    )
+  ;; Access Python virtual environment keybindings from org-mode
+  (add-to-list 'spacemacs--python-pipenv-modes 'org-mode)
+  ;; Don't autopopulate numbers
+  (setq company-dabbrev-char-regexp "[A-z:-]")
+  ;; Fixes for ESS-R mode
+  (add-hook 'ess-r-mode-hook #'lsp)
+  (with-eval-after-load 'lsp-mode
+    (require 'lsp-r)
+    (add-hook 'ess-r-mode-hook #'lsp))
+  (setq lsp-prefer-flymake nil)
+  (setq lsp-log-io t)
+  (add-hook 'ess-r-mode-hook (lambda () (flycheck-mode -1)))
+
+  ;; === Org-mode ===
   (with-eval-after-load 'org
     ;; code snippets
     (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
@@ -669,7 +706,7 @@ before packages are loaded."
           org-insert-heading-respect-content t
           org-startup-indented t
           org-directory "~/org"
-          org-agenda-files '("~/org/main.org/g")
+          org-agenda-files '("~/org/main.org")
           org-agenda-skip-deadline-if-done t
           org-agenda-skip-scheduled-if-done t
           org-want-todo-bindings t
@@ -689,7 +726,7 @@ before packages are loaded."
                           ("\\.html\\'" . "msedge %s")
                           ("\\.xlsx\\'" . "EXCEL %s")
                           ("\\.docx\\'" . "WINWORD %s"))
-          org-default-notes-file "~/org/main.org/g"
+          org-default-notes-file "~/org/main.org"
           org-capture-templates
           '(("t" "Todo" entry (file+headline "~/org/main.org" "Tasks")
              "* TODO %?\nSCHEDULED: %t " :prepend t)
@@ -733,39 +770,22 @@ before packages are loaded."
                           (org-agenda-skip-entry-if 'notdeadline)))
                     (org-agenda-sorting-strategy '(deadline-up))
                     (org-agenda-view-columns-initially t)))))
-  ;; Custom keybindings
-  (spacemacs/set-leader-keys
-    "f R" 'recover-this-file
-    "f n" 'spacemacs/rename-current-buffer-file)
-  (spacemacs-bootstrap/init-which-key)
-  (which-key-add-key-based-replacements
-    "SPC f n" "Rename")
-  (which-key-add-key-based-replacements
-    "SPC f R" "Recover")
+
+  ;; === Clojure ===
+  ;; nextjournal.clerk shortcut
+  (defun clerk-show ()
+    (interactive)
+    (when-let
+        ((filename
+          (buffer-file-name)))
+      (save-buffer)
+      (cider-interactive-eval
+       (concat "(nextjournal.clerk/show! \"" filename "\")"))))
+  (define-key clojure-mode-map (kbd "SPC ") 'clerk-show)
   (spacemacs/set-leader-keys-for-major-mode 'clojure-mode
-    "s s" 'cider-switch-to-repl-buffer)
-  (with-eval-after-load 'paredit
-    ;; Disable the default RET keybinding in paredit-mode
-    (define-key paredit-mode-map (kbd "RET") nil)
-    ;; Rebind RET in cider-repl-mode to support new lines without sending code
-    (add-hook 'cider-repl-mode-hook
-              (lambda ()
-                (local-set-key (kbd "RET") 'cider-repl-newline-and-indent)
-                (local-set-key (kbd "C-RET") 'cider-repl-return)))
-    )
-  ;; Access Python virtual environment keybindings from org-mode
-  (add-to-list 'spacemacs--python-pipenv-modes 'org-mode)
-  ;; Don't autopopulate numbers
-  (setq company-dabbrev-char-regexp "[A-z:-]")
-  ;; Fixes for ESS-R mode
-  (add-hook 'ess-r-mode-hook #'lsp)
-  (with-eval-after-load 'lsp-mode
-    (require 'lsp-r)
-    (add-hook 'ess-r-mode-hook #'lsp))
-  (setq lsp-prefer-flymake nil)
-  (setq lsp-log-io t)
-  (add-hook 'ess-r-mode-hook (lambda () (flycheck-mode -1)))
+    "s c" 'clerk-show)
   )
+
 ;; Do not write anything past this comment. This is where Emacs will
 ;; auto-generate custom variable definitions.
 (defun dotspacemacs/emacs-custom-settings ()
@@ -778,7 +798,6 @@ This function is called at the very end of Spacemacs initialization."
    ;; If you edit it by hand, you could mess it up, so be careful.
    ;; Your init file should contain only one such instance.
    ;; If there is more than one, they won't work right.
-   '(org-agenda-files nil)
    '(package-selected-packages
      '(a ac-ispell ace-jump-helm-line ace-link ace-window aggressive-indent
          all-the-icons auto-compile auto-complete auto-highlight-symbol

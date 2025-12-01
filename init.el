@@ -32,7 +32,8 @@ This function should only modify configuration layer settings."
 
    ;; List of configuration layers to load.
    dotspacemacs-configuration-layers
-   '(yaml
+   '(toml
+     yaml
      csv
      ;; ----------------------------------------------------------------
      ;; Example of useful layers you may want to use right away.
@@ -52,8 +53,9 @@ This function should only modify configuration layer settings."
           ess-r-backend 'lsp
           ess-eval-visibly 'nowait)
      git
-     helm
      html
+     (ivy :variables
+          ivy-enable-advanced-buffer-information t)
      (javascript :variables js-indent-level 1)
      lsp
      lua
@@ -63,7 +65,9 @@ This function should only modify configuration layer settings."
      pandoc
      (python :variables
              python-backend 'lsp
-             python-lsp-server 'pyright)
+             python-lsp-server 'pyright
+             python-formatter 'black
+             python-enable-tools '(uv))
      (shell :variables
             shell-default-height 30
             shell-default-position 'bottom)
@@ -184,7 +188,12 @@ It should only modify the values of Spacemacs settings."
    ;; with `:variables' keyword (similar to layers). Check the editing styles
    ;; section of the documentation for details on available variables.
    ;; (default 'vim)
-   dotspacemacs-editing-style 'vim
+   dotspacemacs-editing-style '(hybrid :variables
+                                       hybrid-style-visual-feedback nil
+                                       hybrid-style-enable-evilified-state t
+                                       hybrid-style-enable-hjkl-bindings nil
+                                       hybrid-style-use-evil-search-module nil
+                                       hybrid-style-default-state 'normal)
 
    ;; If non-nil show the version string in the Spacemacs buffer. It will
    ;; appear as (spacemacs version)@(emacs version)
@@ -280,8 +289,8 @@ It should only modify the values of Spacemacs settings."
    ;; fixed-pitch faces. The `:size' can be specified as
    ;; a non-negative integer (pixel size), or a floating-point (point size).
    ;; Point size is recommended, because it's device independent. (default 10.0)
-   dotspacemacs-default-font '("Consolas"
-                               :size 9.0
+   dotspacemacs-default-font '("Fira Code"
+                               :size 10.0
                                :weight normal
                                :width normal
                                :powerline-scale 1.4)
@@ -630,6 +639,11 @@ This function is called at the very end of Spacemacs startup, after layer
 configuration.
 Put your configuration code here, except for variables that should be set
 before packages are loaded."
+  ;; faster project indexing
+  (setq projectile-indexing-method 'alien)
+  ;; custom packages not from ELPA/MELPA
+  (add-to-list 'load-path "~/.spacemacs.d/elisp/ob-duckdb/")
+  (require 'ob-duckdb)
   ;; temporary file directory
   (setq temporary-file-directory "~/TEMP/")
   ;; sql lsp-mode
@@ -769,21 +783,15 @@ before packages are loaded."
                      '(or (org-agenda-skip-entry-if 'todo '("DONE" "CANC"))
                           (org-agenda-skip-entry-if 'notdeadline)))
                     (org-agenda-sorting-strategy '(deadline-up))
-                    (org-agenda-view-columns-initially t)))))
-
+                    (org-agenda-view-columns-initially t))))
+    ;; Adding duckdb to org-babel
+    (add-to-list 'org-babel-load-languages '(duckdb . t))
+    (org-babel-do-load-languages 'org-babel-load-languages org-babel-load-languages)
+    (add-to-list 'org-src-lang-modes '("duckdb" . sql)))
   ;; === Clojure ===
-  ;; nextjournal.clerk shortcut
-  (defun clerk-show ()
-    (interactive)
-    (when-let
-        ((filename
-          (buffer-file-name)))
-      (save-buffer)
-      (cider-interactive-eval
-       (concat "(nextjournal.clerk/show! \"" filename "\")"))))
-  (define-key clojure-mode-map (kbd "SPC ") 'clerk-show)
-  (spacemacs/set-leader-keys-for-major-mode 'clojure-mode
-    "s c" 'clerk-show)
+  (with-eval-after-load 'cider
+    ;; Just the project name in REPL buffer like *clj:my-project*
+    (setq cider-session-name-template "clj:%p"))
   )
 
 ;; Do not write anything past this comment. This is where Emacs will
@@ -836,7 +844,7 @@ This function is called at the very end of Spacemacs initialization."
          smartparens smeargle space-doc spaceline spacemacs-purpose-popwin
          spacemacs-whitespace-cleanup sphinx-doc string-edit-at-point
          string-inflection symbol-overlay symon tagedit term-cursor terminal-here
-         toc-org transient treemacs treemacs-evil treemacs-icons-dired
+         toc-org toml-mode transient treemacs treemacs-evil treemacs-icons-dired
          treemacs-magit treemacs-persp treemacs-projectile treepy undo-tree unfill
          uuidgen vi-tilde-fringe vim-powerline volatile-highlights web-beautify
          web-mode wfnames which-key winum with-editor writeroom-mode ws-butler

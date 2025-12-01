@@ -621,6 +621,7 @@ configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
   ;; find-file in home directory
+  (require 'org)
   (setq default-directory (expand-file-name "~/"))
   )
 
@@ -707,6 +708,10 @@ before packages are loaded."
 
   ;; === Org-mode ===
   (with-eval-after-load 'org
+    ;; tangle-on-save
+    (add-hook 'org-mode-hook
+              (lambda () (add-hook 'after-save-hook #'org-babel-tangle
+                                   :append :local)))
     ;; code snippets
     (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
     (add-to-list 'org-structure-template-alist '("r" . "src R"))
